@@ -5,6 +5,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface IUserService {
-    public Result<User> signInUser(String email, String plainTextPassword);
-    public Result<User> createUser(String email, String name, String plainTextPassword);
+    Result<User> signInUser(String email, String plainTextPassword);
+    Result<User> createUser(String email, String name, String plainTextPassword);
 }

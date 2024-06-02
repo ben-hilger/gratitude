@@ -1,6 +1,5 @@
 package com.benhilger.gratitude.gratitude;
 
-import com.benhilger.gratitude.util.Result;
 import org.springframework.stereotype.Service;
 
 import java.sql.Connection;

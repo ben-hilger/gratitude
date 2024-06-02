@@ -4,11 +4,11 @@ public class User {
 
     private String id;
 
-    private String email;
+    private final String email;
 
     private String hashedPassword;
 
-    private String fullName;
+    private final String fullName;
 
     public User(String email, String hashedPassword, String fullName) {
         this.email = email;
@@ -37,9 +37,5 @@ public class User {
 
     public String getHashedPassword() {
         return hashedPassword;
-    }
-
-    public void setHashedPassword(String password) {
-        this.hashedPassword = password;
     }
 }

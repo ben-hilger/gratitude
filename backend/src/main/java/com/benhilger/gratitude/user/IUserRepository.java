@@ -4,7 +4,7 @@ import java.sql.SQLException;
 
 public interface IUserRepository {
 
-    public User getUserByEmail(String email) throws SQLException;
+    User getUserByEmail(String email) throws SQLException;
 
-    public User createUser(User user) throws SQLException, IllegalStateException;
+    User createUser(User user) throws SQLException, IllegalStateException;
 }
