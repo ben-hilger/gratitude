@@ -2,8 +2,6 @@ import CalendarCell from "@/components/calendar/calendarcell";
 import {getDatesInRange, getFirstDayOfWeek, getLastDayOfWeek} from "@/app/_lib/calendar";
 
 interface CalendarProps {
-    month: number
-    year: number
     selectedDate: Date
     onChange: (date: Date) => void
 }
@@ -11,8 +9,8 @@ interface CalendarProps {
 export default function Calendar(props: CalendarProps) {
 
     function getDatesToDisplay(): Date[] {
-        const startDate = new Date(props.year, props.month, 1, 0, 0, 0, 0)
-        const endDate = new Date(props.year, props.month + 1, 0, 0, 0, 0, 0)
+        const startDate = new Date(props.selectedDate.getFullYear(), props.selectedDate.getMonth(), 1, 0, 0, 0, 0)
+        const endDate = new Date(props.selectedDate.getFullYear(), props.selectedDate.getMonth() + 1, 0, 0, 0, 0, 0)
 
         const startDay = getFirstDayOfWeek(startDate);
         const endDay = getLastDayOfWeek(endDate);
@@ -27,10 +25,10 @@ export default function Calendar(props: CalendarProps) {
     function buildCalendar() {
         const dates = getDatesToDisplay();
 
-        return dates.map((date: Date, index: number) => {
+        return dates.map((date: Date) => {
             return <CalendarCell date={date}
-                                 key={index}
-                                 disabled={date.getMonth() !== props.month}
+                                 key={date.toDateString()}
+                                 disabled={date.getMonth() !== props.selectedDate.getMonth()}
                                  selected={props.selectedDate.toDateString() === date.toDateString()}
                                  onClick={selectDate}>
                     </CalendarCell>
