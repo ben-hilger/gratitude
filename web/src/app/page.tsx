@@ -19,7 +19,6 @@ export default function Home() {
     }
 
     function currentMonth() {
-        const month = selectedDate.getMonth()
         return Intl.DateTimeFormat(undefined, {
             month: 'long',
             year: 'numeric'
