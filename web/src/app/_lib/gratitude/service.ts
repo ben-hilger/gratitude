@@ -1,6 +1,5 @@
-import {IApiService, SpringApi, SpringApiRoutes} from "@/app/_lib/api/api";
-import {ISessionService, SessionService} from "@/app/_lib/session/service";
-import {List} from "postcss/lib/list";
+import {IApiService, SpringApiRoutes} from "@/app/_lib/api/api";
+import {ISessionService} from "@/app/_lib/session/service";
 
 export type Gratitude = {
     id: string|undefined,
@@ -17,10 +16,10 @@ export interface IGratitudeService {
 
 export class GratitudeService implements IGratitudeService {
 
-    constructor(private apiService: IApiService, private sessionStorage: ISessionService) {}
+    constructor(private apiService: IApiService) {}
 
     async addGratitude(message: string, gratitudeDate: Date): Promise<200|400|500> {
-        const response = await this.apiService.post(SpringApiRoutes.GRATITUDE, { message, gratitudeDate }, this.sessionStorage.getSessionId());
+        const response = await this.apiService.post(SpringApiRoutes.GRATITUDE, { message, gratitudeDate });
         if (response.status >= 500) {
             return 500
         } else if (response.status >= 400) {
@@ -35,7 +34,7 @@ export class GratitudeService implements IGratitudeService {
     async getGratitudes(month: number): Promise<Gratitude[]> {
         const params = new Map<string, any>();
         params.set("month", month)
-        const response = await this.apiService.get(SpringApiRoutes.GRATITUDE, params, this.sessionStorage.getSessionId())
+        const response = await this.apiService.get(SpringApiRoutes.GRATITUDE, params)
 
         if (response.status === 200) {
             const json = await response.json();

@@ -1,3 +1,5 @@
+import {Cookies} from "react-cookie";
+
 export enum SpringApiRoutes {
     USER_LOGIN = "user/login",
     USER_CREATE = "user/create",
@@ -5,8 +7,8 @@ export enum SpringApiRoutes {
 }
 
 export interface IApiService {
-    post(path: string, body: any, authToken: string|null): Promise<Response>;
-    get(path: string, queryParams: Map<string, any>, authToken: string|null): Promise<Response>;
+    post(path: string, body: any): Promise<Response>;
+    get(path: string, queryParams: Map<string, any>): Promise<Response>;
 }
 
 export class SpringApi implements IApiService {
@@ -21,22 +23,24 @@ export class SpringApi implements IApiService {
         return params.join("&");
     }
 
-    async get(path: string, queryParams: Map<string, any>, authToken: null|string = null): Promise<Response> {
+    async get(path: string, queryParams: Map<string, any>): Promise<Response> {
+        const sessionId = (new Cookies()).get("sessionId") as string
         const query = encodeURI(this.buildQueryParams(queryParams));
         return await fetch(this.buildApiCall(path) + `?${query}`, {
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": authToken ? `Bearer ${authToken}` : ""
+                "Authorization": sessionId ? `Bearer ${sessionId}` : ""
             },
         })
     }
 
     async post(path: string, body: any, authToken: null|string = null): Promise<Response> {
+        const sessionId = (new Cookies()).get("sessionId") as string
         return await fetch(this.buildApiCall(path), {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": authToken ? `Bearer ${authToken}` : ""
+                "Authorization": sessionId ? `Bearer ${sessionId}` : ""
             },
             body: JSON.stringify(body)
         })

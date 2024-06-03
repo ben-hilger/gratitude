@@ -1,7 +1,6 @@
 import CalendarCell from "@/components/calendar/calendarcell";
 import {getDatesInRange, getFirstDayOfWeek, getLastDayOfWeek} from "@/app/_lib/calendar";
 import {incrementMonth} from "@/app/_lib/date";
-import {useState} from "react";
 
 interface CalendarProps {
     selectedDate: Date
@@ -9,7 +8,6 @@ interface CalendarProps {
 }
 
 export default function Calendar(props: CalendarProps) {
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date(2024, 0, 1, 0, 0, 0, 0))
 
     function getDatesToDisplay(): Date[] {
         const startDate = new Date(props.selectedDate.getFullYear(), props.selectedDate.getMonth(), 1, 0, 0, 0, 0)
@@ -22,7 +20,6 @@ export default function Calendar(props: CalendarProps) {
     }
 
     function selectDate(date: Date) {
-        setSelectedDate(date)
         props.onChange(date)
     }
 
@@ -40,12 +37,12 @@ export default function Calendar(props: CalendarProps) {
     }
 
     function goToNextMonth() {
-        const newDate = incrementMonth(selectedDate, 1)
+        const newDate = incrementMonth(props.selectedDate, 1)
         selectDate(newDate)
     }
 
     function goToPrevMonth() {
-        const newDate = incrementMonth(selectedDate, -1)
+        const newDate = incrementMonth(props.selectedDate, -1)
         selectDate(newDate)
     }
 
@@ -53,7 +50,7 @@ export default function Calendar(props: CalendarProps) {
         return Intl.DateTimeFormat(undefined, {
             month: 'long',
             year: 'numeric'
-        }).format(selectedDate)
+        }).format(props.selectedDate)
     }
 
         return (

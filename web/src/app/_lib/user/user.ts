@@ -12,28 +12,24 @@ export type User = {
 }
 
 export interface IUserService {
-    loginUser(email: string, password: string): Promise<200|400|500>;
+    loginUser(email: string, password: string): Promise<string|400|500>;
     createUser(email: string, name: string, password: string): Promise<200|400|209|500>;
 }
 
 export class UserService implements IUserService {
 
-    constructor(private apiService: IApiService, private sessionService: ISessionService) {}
+    constructor(private apiService: IApiService) {}
 
-    async loginUser(email: string, password: string): Promise<200|400|500> {
+    async loginUser(email: string, password: string): Promise<string|400|500> {
         try {
-            const response = await this.apiService.post(SpringApiRoutes.USER_LOGIN, { email, password }, null)
+            const response = await this.apiService.post(SpringApiRoutes.USER_LOGIN, { email, password })
 
             if (response.status >= 500) {
                 return 500;
             } else if (response.status >= 400) {
                 return 400;
             } else if (response.status === 200) {
-                const sessionId = (await response.json() as LoginResponse).sessionId ?? undefined;
-                if (sessionId) {
-                    this.sessionService.setSessionId(sessionId);
-                }
-                return 200;
+                return (await response.json() as LoginResponse).sessionId ?? undefined;
             }
         } catch (e) {
             console.log(e)
@@ -43,7 +39,7 @@ export class UserService implements IUserService {
 
     async createUser(email: string, name: string, password: string): Promise<200|400|500|209> {
         try {
-            const response = await this.apiService.post(SpringApiRoutes.USER_CREATE, { email, name, password }, null)
+            const response = await this.apiService.post(SpringApiRoutes.USER_CREATE, { email, name, password })
             if (response.status >= 500) {
                 return 500;
             } else if (response.status >= 400) {
