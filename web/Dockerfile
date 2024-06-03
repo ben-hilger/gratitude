@@ -1,26 +1,20 @@
-# Install dependencies
-FROM node:lts-alpine AS deps
-
-WORKDIR /opt/app
-COPY package.json ./
+FROM node:alpine as BUILD_IMAGE
+WORKDIR /app
+COPY package.json yarn.lock ./
+# install dependencies
 RUN yarn install --frozen-lockfile
-
-FROM node:lts-alpine AS builder
-
-ENV NODE_ENV=production
-WORKDIR /opt/app
 COPY . .
-COPY --from=deps /opt/app/node_modules ./node_modules
+# build
 RUN yarn build
-
-# Production image, copy all the files and run next
-FROM node:lts-alpine AS runner
-
-WORKDIR /opt/app
+# remove dev dependencies
+RUN npm prune --production
+FROM node:alpine
+WORKDIR /app
+# copy from build image
+COPY --from=BUILD_IMAGE /app/package.json ./package.json
+COPY --from=BUILD_IMAGE /app/node_modules ./node_modules
+COPY --from=BUILD_IMAGE /app/.next ./.next
+COPY --from=BUILD_IMAGE /app/public ./public
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_API_BASE=https://api.bendev404.com
-COPY --from=builder /opt/app/next.config.mjs ./
-COPY --from=builder /opt/app/public ./public
-COPY --from=builder /opt/app/.next ./.next
-COPY --from=builder /opt/app/node_modules ./node_modules
-CMD ["node_modules/.bin/next", "start"]
+CMD ["yarn", "start"]
