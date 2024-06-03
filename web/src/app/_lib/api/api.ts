@@ -13,7 +13,7 @@ export interface IApiService {
 
 export class SpringApi implements IApiService {
 
-    private apiBase = process.env.NEXT_PUBLIC_API_BASE
+    private apiBase = "api.bendev404.com"
 
     private buildQueryParams(map: Map<string, any>) {
         const params: string[] = [];
