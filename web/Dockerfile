@@ -18,6 +18,7 @@ FROM node:lts-alpine AS runner
 
 WORKDIR /opt/app
 ENV NODE_ENV=production
+ENV NEXT_PUBLIC_API_BASE=https://api.bendev404.com
 COPY --from=builder /opt/app/next.config.mjs ./
 COPY --from=builder /opt/app/public ./public
 COPY --from=builder /opt/app/.next ./.next
