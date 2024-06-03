@@ -1,8 +1,12 @@
 package com.benhilger.gratitude.gratitude;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+import java.io.Serializable;
 import java.util.Date;
 
-public class Gratitude {
+@JsonSerialize()
+public class Gratitude implements Serializable {
 
     private final String id;
 
@@ -30,7 +34,23 @@ public class Gratitude {
         this.dateModified = dateModified;
     }
 
-    public String getGratitudeDate() {
-        return this.gratitudeDate.toInstant().toString();
+    public String getId() {
+        return id;
+    }
+
+    public Date getDateAdded() {
+        return dateAdded;
+    }
+
+    public Date getDateModified() {
+        return dateModified;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public Date getGratitudeDate() {
+        return gratitudeDate;
     }
 }

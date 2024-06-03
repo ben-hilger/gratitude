@@ -4,6 +4,8 @@ import com.benhilger.gratitude.util.ErrorType;
 import com.benhilger.gratitude.util.Result;
 import org.springframework.stereotype.Service;
 
+import java.sql.SQLException;
+
 @Service
 public class SessionService implements IAuthService {
 
@@ -13,7 +15,19 @@ public class SessionService implements IAuthService {
         this.repository = repository;
     }
 
-    @Override
+    public Result<String> validateAuthToken(String token) {
+        try {
+            String userId = this.repository.getUserIdFromSession(token);
+            if (userId == null) {
+                return new Result<>(null, ErrorType.USER_ERROR);
+            }
+            return new Result<>(userId, ErrorType.SUCCESS);
+        } catch (SQLException exception) {
+            System.out.println("Unauthorized token: " + token);
+            return new Result<>(null, ErrorType.SERVER_ERROR);
+        }
+    }
+
     public Result<String> generateAuthToken(String userId) {
         try {
             if (userId.isEmpty()) {

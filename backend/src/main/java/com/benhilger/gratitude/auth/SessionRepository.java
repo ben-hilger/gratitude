@@ -2,10 +2,7 @@ package com.benhilger.gratitude.auth;
 
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Calendar;
 import java.util.UUID;
 
@@ -28,6 +25,19 @@ public class SessionRepository implements ISessionRepository{
 
         statement.execute();
         return sessionID.toString();
+    }
+
+    @Override
+    public String getUserIdFromSession(String sessionId) throws SQLException {
+        PreparedStatement statement = this.connection.prepareStatement("SELECT user_id FROM user_sessions WHERE id = ? AND expires_date_utc >= NOW() LIMIT 1");
+        statement.setObject(1, UUID.fromString(sessionId));
+
+        ResultSet resultSet = statement.executeQuery();
+
+        if (resultSet.next()) {
+            return resultSet.getString(1);
+        }
+        return null;
     }
 
     private Date getExpirationDate() {

@@ -24,7 +24,7 @@ public class GratitudeRepository implements IGratitudeRepository {
 
     private Gratitude getById(String id) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(baseSQL + " WHERE id = ? LIMIT 1");
-        statement.setString(1, id);
+        statement.setObject(1, UUID.fromString(id));
         ResultSet rs = statement.executeQuery();
 
         if (rs.next()) {
@@ -33,9 +33,9 @@ public class GratitudeRepository implements IGratitudeRepository {
         return null;
     }
 
-    public List<Gratitude> getAllGratuitiesForMonth(String userId, int month) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(baseSQL + " WHERE EXTRACT(MONTH FROM date_gratitude_utc) = ? AND user_id::text = ?");
-        statement.setInt(1, month);
+    public Gratitude[] getAllGratuitiesForMonth(String userId, int month) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(baseSQL + " WHERE date_part('month', date_gratitude_utc) = ? AND user_id::text = ?");
+        statement.setInt(1, month + 1);
         statement.setString(2, userId);
         ResultSet rs = statement.executeQuery();
 
@@ -45,22 +45,21 @@ public class GratitudeRepository implements IGratitudeRepository {
             gratitudes.add(gratitude);
         }
 
-        return gratitudes;
+        Gratitude[] gratitudesToReturn = new Gratitude[gratitudes.size()];
+        gratitudes.toArray(gratitudesToReturn);
+        return gratitudesToReturn;
     }
 
     public Gratitude addGratitude(String userId, String message, Date gratitudeDate) throws SQLException {
-        String uuid = UUID.randomUUID().toString();
+        UUID uuid = UUID.randomUUID();
 
         PreparedStatement statement = connection.prepareStatement("INSERT INTO gratitude_entries (id, message, date_gratitude_utc, user_id) VALUES (?, ?, ?, ?)");
-        statement.setString(1, uuid);
+        statement.setObject(1, uuid);
         statement.setString(2, message);
         statement.setDate(3, new java.sql.Date(gratitudeDate.getTime()));
-        statement.setString(4, userId);
+        statement.setObject(4, UUID.fromString(userId));
 
-        boolean success = statement.execute();
-        if (!success) {
-            throw new SQLException("There was an issue inserting the new data");
-        }
-        return this.getById(uuid);
+        statement.execute();
+        return this.getById(uuid.toString());
     }
 }

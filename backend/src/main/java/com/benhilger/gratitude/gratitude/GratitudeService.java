@@ -20,20 +20,13 @@ public class GratitudeService implements IGratitudeService {
     }
 
     @Override
-    public Result<HashMap<String, List<Gratitude>>> getGratitudesForUser(String userId, int month) {
+    public Result<Gratitude[]> getGratitudesForUser(String userId, int month) {
         try {
             if (userId.isEmpty() || month < 0 || month > 11) {
                 return new Result<>(null, ErrorType.USER_ERROR);
             }
-            List<Gratitude> gratitudes = this.repository.getAllGratuitiesForMonth(userId, month);
-
-            HashMap<String, List<Gratitude>> organizedGratitudes = new HashMap<>();
-            for (Gratitude gratitude : gratitudes) {
-                List<Gratitude> currentGratitudes = organizedGratitudes.getOrDefault(gratitude.getGratitudeDate(), new ArrayList<>());
-                currentGratitudes.add(gratitude);
-                organizedGratitudes.put(gratitude.getGratitudeDate(), currentGratitudes);
-            }
-            return new Result<>(organizedGratitudes, ErrorType.SUCCESS);
+            Gratitude[] gratitudes = this.repository.getAllGratuitiesForMonth(userId, month);
+            return new Result<>(gratitudes, ErrorType.SUCCESS);
         } catch (SQLException exception) {
             System.out.println("There was an issue getting the gratitude:" + exception.getMessage());
             return new Result<>(null, ErrorType.SERVER_ERROR);
@@ -48,17 +41,10 @@ public class GratitudeService implements IGratitudeService {
         try {
             return new Result<>(this.repository.addGratitude(userId, message, gratitudeDate), ErrorType.SUCCESS);
         } catch (SQLException exception) {
+            System.out.println("Unable to add gratitude: " + exception.getMessage());
             return new Result<>(null, ErrorType.SERVER_ERROR);
         }
     }
 
-    @Override
-    public boolean deleteGratitude(String userId, String gratitudeId) {
-        return false;
-    }
 
-    @Override
-    public Gratitude updateGratitude(String userId, String message, Date gratitudeDate) {
-        return null;
-    }
 }
