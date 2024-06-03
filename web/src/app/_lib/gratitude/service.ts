@@ -5,6 +5,7 @@ export type Gratitude = {
     message: string,
     date: number,
     month: number,
+    year: number,
     dateAdded: Date,
     dateModified: Date
 }
@@ -48,6 +49,7 @@ export class GratitudeService implements IGratitudeService {
                     message: gratitude.message,
                     date: gratitude.date,
                     month: gratitude.month,
+                    year: gratitude.year,
                     dateAdded: new Date(gratitude.dateAdded),
                     dateModified: new Date(gratitude.dateModified)
                 })

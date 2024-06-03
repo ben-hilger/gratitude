@@ -17,7 +17,7 @@ public class GratitudeRepository implements IGratitudeRepository {
         this.connection = connection;
     }
 
-    private final String baseSQL = "SELECT id, message, date_gratitude_utc, date_added_utc, date_modified_utc FROM gratitude_entries";
+    private final String baseSQL = "SELECT id, message, month, date, year, date_added_utc, date_modified_utc FROM gratitude_entries";
 
     private Gratitude getById(String id) throws SQLException {
         PreparedStatement statement = connection.prepareStatement(baseSQL + " WHERE id = ? LIMIT 1");
@@ -25,21 +25,25 @@ public class GratitudeRepository implements IGratitudeRepository {
         ResultSet rs = statement.executeQuery();
 
         if (rs.next()) {
-            return new Gratitude(rs.getString(1), rs.getString(2), rs.getDate(3), rs.getDate(4), rs.getDate(5));
+            return new Gratitude(rs.getString(1), rs.getString(2),
+                    rs.getInt(3), rs.getInt(4), rs.getInt(5),
+                    rs.getDate(6), rs.getDate(7));
         }
         return null;
     }
 
     public Gratitude[] getAllGratuitiesForMonth(String userId, int month, int year) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(baseSQL + " WHERE date_part('month', date_gratitude_utc) = ? AND date_part('year', date_modified_utc) = ? AND user_id::text = ?");
-        statement.setInt(1, month + 1);
+        PreparedStatement statement = connection.prepareStatement(baseSQL + " WHERE month = ? AND year = ? AND user_id::text = ?");
+        statement.setInt(1, month);
         statement.setInt(2, year);
         statement.setString(3, userId);
         ResultSet rs = statement.executeQuery();
 
         List<Gratitude> gratitudes = new ArrayList<>();
         while (rs.next()) {
-            Gratitude gratitude = new Gratitude(rs.getString(1), rs.getString(2), rs.getDate(3), rs.getDate(4), rs.getDate(5));
+            Gratitude gratitude = new Gratitude(rs.getString(1), rs.getString(2),
+                    rs.getInt(3), rs.getInt(4), rs.getInt(5),
+                    rs.getDate(6), rs.getDate(7));
             gratitudes.add(gratitude);
         }
 
@@ -48,14 +52,16 @@ public class GratitudeRepository implements IGratitudeRepository {
         return gratitudesToReturn;
     }
 
-    public Gratitude addGratitude(String userId, String message, Date gratitudeDate) throws SQLException {
+    public Gratitude addGratitude(String userId, String message, int month, int date, int year) throws SQLException {
         UUID uuid = UUID.randomUUID();
 
-        PreparedStatement statement = connection.prepareStatement("INSERT INTO gratitude_entries (id, message, date_gratitude_utc, user_id) VALUES (?, ?, ?, ?)");
+        PreparedStatement statement = connection.prepareStatement("INSERT INTO gratitude_entries (id, message, month, date, year, user_id) VALUES (?, ?, ?, ?, ?, ?)");
         statement.setObject(1, uuid);
         statement.setString(2, message);
-        statement.setDate(3, new java.sql.Date(gratitudeDate.getTime()));
-        statement.setObject(4, UUID.fromString(userId));
+        statement.setInt(3, month);
+        statement.setInt(4, date);
+        statement.setInt(5, year);
+        statement.setObject(6, UUID.fromString(userId));
 
         statement.execute();
         return this.getById(uuid.toString());

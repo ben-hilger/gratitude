@@ -3,7 +3,6 @@ package com.benhilger.gratitude.gratitude;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.io.Serializable;
-import java.util.Calendar;
 import java.util.Date;
 
 @JsonSerialize()
@@ -17,21 +16,26 @@ public class Gratitude implements Serializable {
 
     private final int date;
 
+    private final int year;
+
     private final Date dateAdded;
 
     private final Date dateModified;
 
-    public Gratitude(String id, String message, Date gratitudeDate, Date dateAdded, Date dateModified) {
+    public Gratitude(String id, String message, int month, int day, int year, Date dateAdded, Date dateModified) {
         this.id = id;
         this.message = message;
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(gratitudeDate);
-        this.date = calendar.get(Calendar.DATE);
-        this.month = calendar.get(Calendar.MONTH);
+        this.month = month;
+        this.year = year;
+        this.date = day;
 
         this.dateAdded = dateAdded;
         this.dateModified = dateModified;
+    }
+
+    public int getYear() {
+        return year;
     }
 
     public String getId() {

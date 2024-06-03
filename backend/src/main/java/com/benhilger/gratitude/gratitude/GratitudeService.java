@@ -5,7 +5,6 @@ import com.benhilger.gratitude.util.Result;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
-import java.util.*;
 
 @Service
 public class GratitudeService implements IGratitudeService {
@@ -36,9 +35,7 @@ public class GratitudeService implements IGratitudeService {
             return new Result<>(null, ErrorType.USER_ERROR);
         }
         try {
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(year, month, date);
-            return new Result<>(this.repository.addGratitude(userId, message, calendar.getTime()), ErrorType.SUCCESS);
+            return new Result<>(this.repository.addGratitude(userId, message, month, date, year), ErrorType.SUCCESS);
         } catch (SQLException exception) {
             System.out.println("Unable to add gratitude: " + exception.getMessage());
             return new Result<>(null, ErrorType.SERVER_ERROR);

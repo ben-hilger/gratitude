@@ -39,7 +39,7 @@ export default function Home() {
             const updatedGratitudes = new Map<string, Gratitude[]>();
             gratitudeService.getGratitudes(month, year).then((grats) => {
                 grats.forEach((gratitude) => {
-                    const key = `${gratitude.date}-${gratitude.month}`;
+                    const key = `${gratitude.date}-${gratitude.month}-${gratitude.year}`;
                     const workingGratitudes = updatedGratitudes.get(key) ?? []
                     workingGratitudes.push(gratitude);
                     updatedGratitudes.set(key, workingGratitudes)
@@ -70,7 +70,7 @@ export default function Home() {
             return []
         }
 
-        const key = `${selectedDate.getDate()}-${selectedDate.getMonth()}`;
+        const key = `${selectedDate.getDate()}-${selectedDate.getMonth()}-${selectedDate.getFullYear()}`;
         return gratitudes.get(key) ?? []
     }
 
