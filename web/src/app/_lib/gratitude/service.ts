@@ -20,7 +20,6 @@ export class GratitudeService implements IGratitudeService {
     constructor(private apiService: IApiService) {}
 
     async addGratitude(message: string, gratitudeDate: Date): Promise<200|400|500> {
-        gratitudeDate.setUTCHours(0, 0, 0, 0)
         const response = await this.apiService.post(SpringApiRoutes.GRATITUDE, { message, month: gratitudeDate.getMonth(), day: gratitudeDate.getDate(), year: gratitudeDate.getFullYear() });
         if (response.status >= 500) {
             return 500
