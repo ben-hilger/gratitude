@@ -22,7 +22,7 @@ export class UserService implements IUserService {
 
     async loginUser(email: string, password: string): Promise<200|400|500> {
         try {
-            const response = await this.apiService.post(SpringApiRoutes.USER_LOGIN, { email, password })
+            const response = await this.apiService.post(SpringApiRoutes.USER_LOGIN, { email, password }, null)
 
             if (response.status >= 500) {
                 return 500;
