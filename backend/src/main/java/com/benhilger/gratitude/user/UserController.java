@@ -21,7 +21,7 @@ public class UserController {
 
 
     @PostMapping("create")
-    @CrossOrigin()
+    @CrossOrigin(origins = "*")
     public ResponseEntity<UserCreateResponse> createUser(@RequestBody UserCreateRequest userCreateRequest) {
        Result<User> userResult = this.userService.createUser(userCreateRequest.getEmail(), userCreateRequest.getName(), userCreateRequest.getPassword());
        if (userResult.error != ErrorType.SUCCESS) {
@@ -32,7 +32,7 @@ public class UserController {
     }
 
     @PostMapping("login")
-    @CrossOrigin()
+    @CrossOrigin(origins = "*")
     public ResponseEntity<UserLoginResponse> authenticateUser(@RequestBody UserLoginRequest userLoginRequest) {
         Result<User> authenticated = this.userService.signInUser(userLoginRequest.getEmail(), userLoginRequest.getPassword());
 

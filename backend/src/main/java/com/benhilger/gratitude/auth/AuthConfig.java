@@ -24,6 +24,7 @@ public class AuthConfig implements WebMvcConfigurer {
         return security.build();
     }
 
+
     @Bean
     public PasswordEncoder encoder() {
         return new BCryptPasswordEncoder();
