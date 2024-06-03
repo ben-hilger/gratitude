@@ -13,7 +13,7 @@ export default function Page() {
     const [password, setPassword] = useState<string>("")
     const [errorMessage, setErrorMessage] = useState<string>("")
 
-    const userService = new UserService(new SpringApi(), new SessionService());
+    const userService = new UserService(new SpringApi());
 
     function AccountCreated() {
         const params = useSearchParams();

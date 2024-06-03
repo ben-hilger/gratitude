@@ -13,7 +13,7 @@ export default function Page() {
     const [passwordVerify, setPasswordVerify] = useState<string>("")
     const [errorMessage, setErrorMessage] = useState<string>("")
 
-    const userService = new UserService(new SpringApi(), new SessionService());
+    const userService = new UserService(new SpringApi());
 
     async function createAccount() {
         if (name == "" || email == "" || password == "" || passwordVerify !== password || !passwordSatisfiesRequirements()) {
