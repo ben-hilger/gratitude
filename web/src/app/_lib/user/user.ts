@@ -43,7 +43,7 @@ export class UserService implements IUserService {
 
     async createUser(email: string, name: string, password: string): Promise<200|400|500|209> {
         try {
-            const response = await this.apiService.post(SpringApiRoutes.USER_CREATE, { email, name, password })
+            const response = await this.apiService.post(SpringApiRoutes.USER_CREATE, { email, name, password }, null)
             if (response.status >= 500) {
                 return 500;
             } else if (response.status >= 400) {
