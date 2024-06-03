@@ -7,9 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-
 @RestController
 @RequestMapping("/gratitude")
 public class GratitudeController {
@@ -44,7 +41,7 @@ public class GratitudeController {
 
     @GetMapping()
     @CrossOrigin()
-    public ResponseEntity<GetGratitudeResponse> getAllGratitude(@RequestHeader(value = "Authorization") String authorization, @RequestParam(name = "month") Integer month) {
+    public ResponseEntity<GetGratitudeResponse> getAllGratitude(@RequestHeader(value = "Authorization") String authorization, @RequestParam(name = "month") Integer month, @RequestParam(name = "year") Integer year) {
         String userId;
         try {
             userId = extractUserIdFromAuthorizationToken(authorization);
@@ -52,7 +49,7 @@ public class GratitudeController {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Result<Gratitude[]> result = this.gratitudeService.getGratitudesForUser(userId, month);
+        Result<Gratitude[]> result = this.gratitudeService.getGratitudesForUser(userId, month, year);
 
         if (result.error == ErrorType.SUCCESS) {
            return new ResponseEntity<>(new GetGratitudeResponse(result.value), HttpStatus.OK);
@@ -64,14 +61,14 @@ public class GratitudeController {
     @PostMapping()
     @CrossOrigin()
     public ResponseEntity<Gratitude> addGratitude(@RequestHeader(value = "Authorization") String authorization, @RequestBody GratitudeRequest gratitudeRequest) {
-        String userId = null;
+        String userId;
         try {
             userId = extractUserIdFromAuthorizationToken(authorization);
         } catch (IllegalArgumentException exception) {
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        Result<Gratitude> result = this.gratitudeService.addGratitude(userId, gratitudeRequest.message, gratitudeRequest.gratitudeDate);
+        Result<Gratitude> result = this.gratitudeService.addGratitude(userId, gratitudeRequest.message, gratitudeRequest.month, gratitudeRequest.day, gratitudeRequest.year);
 
         return result.intoResponseEntity();
     }

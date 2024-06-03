@@ -5,15 +5,13 @@ import {useEffect, useState} from "react";
 import Modal from "@/components/Modal";
 import {Gratitude} from "@/app/_lib/gratitude/service";
 import {redirect} from "next/navigation";
-import {SessionService} from "@/app/_lib/session/service";
 import {GratitudeService, IGratitudeService} from "@/app/_lib/gratitude/service";
 import {SpringApi} from "@/app/_lib/api/api";
-import {Cookies, CookiesProvider, useCookies} from "react-cookie";
+import {Cookies, CookiesProvider} from "react-cookie";
 
 export default function Home() {
 
     const gratitudeService: IGratitudeService = new GratitudeService(new SpringApi());
-
 
     const [selectedDate, setSelectedDate] = useState<null|Date>(null)
     const [showAddGratitudeModal, setShowAddGratitudeModal] = useState<boolean>(false)
@@ -36,16 +34,16 @@ export default function Home() {
 
     function changeDate(date: Date) {
         const month = date.getMonth()
+        const year = date.getFullYear()
         if (month !== selectedDate?.getMonth()) {
             const updatedGratitudes = new Map<string, Gratitude[]>();
-            gratitudeService.getGratitudes(month).then((grats) => {
+            gratitudeService.getGratitudes(month, year).then((grats) => {
                 grats.forEach((gratitude) => {
-                    const key = `${gratitude.date.getDate()}-${gratitude.date.getMonth()}`;
+                    const key = `${gratitude.date}-${gratitude.month}`;
                     const workingGratitudes = updatedGratitudes.get(key) ?? []
                     workingGratitudes.push(gratitude);
                     updatedGratitudes.set(key, workingGratitudes)
                 })
-                console.log(updatedGratitudes)
                 updatedGratitudes.forEach((value, key) => {
                     const currentGratitudes = gratitudes
                     currentGratitudes.set(key, value)

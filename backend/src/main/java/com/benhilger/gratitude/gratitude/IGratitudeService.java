@@ -2,14 +2,10 @@ package com.benhilger.gratitude.gratitude;
 
 import com.benhilger.gratitude.util.Result;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
 public interface IGratitudeService {
 
-    Result<Gratitude[]> getGratitudesForUser(String userId, int month);
+    Result<Gratitude[]> getGratitudesForUser(String userId, int month, int year);
 
-    Result<Gratitude> addGratitude(String userId, String message, Date gratitudeDate);
+    Result<Gratitude> addGratitude(String userId, String message, int month, int date, int year);
 
 }

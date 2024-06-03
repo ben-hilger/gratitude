@@ -6,10 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.Date;
+import java.util.*;
 
 @Service
 public class GratitudeRepository implements IGratitudeRepository {
@@ -33,10 +30,11 @@ public class GratitudeRepository implements IGratitudeRepository {
         return null;
     }
 
-    public Gratitude[] getAllGratuitiesForMonth(String userId, int month) throws SQLException {
-        PreparedStatement statement = connection.prepareStatement(baseSQL + " WHERE date_part('month', date_gratitude_utc) = ? AND user_id::text = ?");
+    public Gratitude[] getAllGratuitiesForMonth(String userId, int month, int year) throws SQLException {
+        PreparedStatement statement = connection.prepareStatement(baseSQL + " WHERE date_part('month', date_gratitude_utc) = ? AND date_part('year', date_modified_utc) = ? AND user_id::text = ?");
         statement.setInt(1, month + 1);
-        statement.setString(2, userId);
+        statement.setInt(2, year);
+        statement.setString(3, userId);
         ResultSet rs = statement.executeQuery();
 
         List<Gratitude> gratitudes = new ArrayList<>();

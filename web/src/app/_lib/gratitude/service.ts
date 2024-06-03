@@ -1,16 +1,16 @@
 import {IApiService, SpringApiRoutes} from "@/app/_lib/api/api";
-import {ISessionService} from "@/app/_lib/session/service";
 
 export type Gratitude = {
     id: string|undefined,
     message: string,
-    date: Date,
+    date: number,
+    month: number,
     dateAdded: Date,
     dateModified: Date
 }
 
 export interface IGratitudeService {
-    getGratitudes(month: number): Promise<Gratitude[]>
+    getGratitudes(month: number, year: number): Promise<Gratitude[]>
     addGratitude(message: string, gratitudeDate: Date): Promise<200|400|500>
 }
 
@@ -20,21 +20,22 @@ export class GratitudeService implements IGratitudeService {
 
     async addGratitude(message: string, gratitudeDate: Date): Promise<200|400|500> {
         gratitudeDate.setUTCHours(0, 0, 0, 0)
-        const response = await this.apiService.post(SpringApiRoutes.GRATITUDE, { message, gratitudeDate });
+        const response = await this.apiService.post(SpringApiRoutes.GRATITUDE, { message, month: gratitudeDate.getMonth(), day: gratitudeDate.getDate() });
         if (response.status >= 500) {
             return 500
         } else if (response.status >= 400) {
             return 400
         } else if (response.status === 200) {
-            this.getGratitudes(gratitudeDate.getMonth())
+            this.getGratitudes(gratitudeDate.getMonth(), gratitudeDate.getFullYear())
             return 200
         }
         throw new Error("Illegal state")
     }
 
-    async getGratitudes(month: number): Promise<Gratitude[]> {
+    async getGratitudes(month: number, year: number): Promise<Gratitude[]> {
         const params = new Map<string, any>();
         params.set("month", month)
+        params.set("year", year)
         const response = await this.apiService.get(SpringApiRoutes.GRATITUDE, params)
 
         if (response.status === 200) {
@@ -45,7 +46,8 @@ export class GratitudeService implements IGratitudeService {
                 convertedGratitudes.push({
                     id: gratitude.id,
                     message: gratitude.message,
-                    date: new Date(gratitude.gratitudeDate),
+                    date: gratitude.date,
+                    month: gratitude.month,
                     dateAdded: new Date(gratitude.dateAdded),
                     dateModified: new Date(gratitude.dateModified)
                 })
