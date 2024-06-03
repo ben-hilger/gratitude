@@ -1,56 +1,129 @@
 'use client'
 
 import Calendar from "@/components/calendar/calendar";
-import {useState} from "react";
-import {incrementMonth} from "@/app/_lib/date";
+import {useEffect, useState} from "react";
+import Modal from "@/components/Modal";
+import {Gratitude} from "@/app/_lib/gratitude/service";
+import {redirect} from "next/navigation";
+import {ISessionService, SessionService} from "@/app/_lib/session/service";
+import {GratitudeService, IGratitudeService} from "@/app/_lib/gratitude/service";
+import {SpringApi} from "@/app/_lib/api/api";
 
 export default function Home() {
-
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date(2024, 0, 1, 0, 0, 0, 0))
-
-    function goToNextMonth() {
-        const newDate = incrementMonth(selectedDate, 1)
-        setSelectedDate(newDate)
+    const sessionService: ISessionService = new SessionService();
+    if (sessionService.getSessionId() === null) {
+        redirect("/login")
     }
 
-    function goToPrevMonth() {
-        const newDate = incrementMonth(selectedDate, -1)
-        setSelectedDate(newDate)
+    const gratitudeService: IGratitudeService = new GratitudeService(new SpringApi(), new SessionService());
+
+    const [selectedDate, setSelectedDate] = useState<null|Date>(null)
+    const [showAddGratitudeModal, setShowAddGratitudeModal] = useState<boolean>(false)
+
+    const [gratitudes, setGratitudes] = useState<Map<string, Gratitude[]>>(new Map<string, Gratitude[]>())
+    const [newGratitudeMessage, setNewGratitude] = useState<string>("")
+
+    useEffect(() => {
+        setup()
+    }, [])
+
+    function setup() {
+       changeDate(new Date(2024, 0, 1, 0, 0, 0, 0))
+    }
+    function changeDate(date: Date) {
+        const month = date.getMonth()
+        if (month !== selectedDate?.getMonth()) {
+            gratitudeService.getGratitudes(month).then((updatedGratitudes) => {
+                updatedGratitudes.forEach((gratitude) => {
+                    const key = `${gratitude.date.getDate()}-${gratitude.date.getMonth()}`;
+                })
+                const key = `${date.getDate()}-${date.getMonth()}`;
+                const currentGratitudes = gratitudes
+                currentGratitudes.set(key, updatedGratitudes)
+                setGratitudes(currentGratitudes)
+            })
+        }
+        setSelectedDate(date)
     }
 
-    function currentMonth() {
-        return Intl.DateTimeFormat(undefined, {
-            month: 'long',
-            year: 'numeric'
-        }).format(selectedDate)
+    async function addGratitude() {
+        if (newGratitudeMessage.length === 0 || !selectedDate) {
+            return
+        }
+
+        await gratitudeService.addGratitude(newGratitudeMessage, selectedDate)
+        setNewGratitude("")
+        setShowAddGratitudeModal(false)
+    }
+
+    function getCurrentGratitudes() {
+        if (!selectedDate) {
+            return []
+        }
+
+        const key = `${selectedDate.getDate()}-${selectedDate.getMonth()}`;
+        const graditudesForMonth = gratitudes.get(key) ?? [];
+        return graditudesForMonth.filter((graditude) => {
+            return graditude.date.toDateString() === selectedDate.toDateString();
+        })
     }
 
     return (
-    <main className="flex min-h-screen flex-col items-center p-24">
-        <div className={"text-3xl flex items-center justify-center gap-3 font-bold mb-5"}>
-            <kbd
-                onClick={goToPrevMonth}
-                className="cursor-pointer rtl:rotate-180 inline-flex items-center px-2 py-2 text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
-                <svg className="w-2.5 h-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                     viewBox="0 0 10 16">
-                    <path
-                        d="M8.766.566A2 2 0 0 0 6.586 1L1 6.586a2 2 0 0 0 0 2.828L6.586 15A2 2 0 0 0 10 13.586V2.414A2 2 0 0 0 8.766.566Z"/>
-                </svg>
-                <span className="sr-only">Arrow key left</span>
-            </kbd>
-            {currentMonth()}
-            <kbd
-                onClick={goToNextMonth}
-                className="cursor-pointer rtl:rotate-180 inline-flex items-center px-2 py-2 text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
-                <svg className="w-2.5 h-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                     viewBox="0 0 10 16">
-                    <path d="M3.414 1A2 2 0 0 0 0 2.414v11.172A2 2 0 0 0 3.414 15L9 9.414a2 2 0 0 0 0-2.828L3.414 1Z"/>
-                </svg>
-                <span className="sr-only">Arrow key right</span>
-            </kbd>
+        <main className="flex min-h-screen flex-col items-center gap-9 p-24">
+            <div className={"w-6/12"}>
+                <Calendar onChange={changeDate} selectedDate={selectedDate ?? new Date()}></Calendar>
+            </div>
+            <div className={"w-full"}>
+                <div className="relative overflow-x-auto">
+                    <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                        <thead
+                            className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                        <tr>
+                            <th scope="col" className="text-center px-6 py-3">
+                                Gratitude
+                                <button onClick={() => setShowAddGratitudeModal(true)} className={"mx-5 px-3 py-2.5 rounded bg-blue-500 text-white"}>+</button>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        { getCurrentGratitudes().map((gratitude: Gratitude) => {
+                            return (<tr key={gratitude.id} className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                <th scope="row"
+                                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                    { gratitude.message }
+                                </th>
+                            </tr>)
+                        })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-        </div>
-        <Calendar onChange={setSelectedDate} selectedDate={selectedDate}></Calendar>
-    </main>
+
+            <Modal show={showAddGratitudeModal} cancel={() => setShowAddGratitudeModal(false)} id={"add-gratitude"}
+                   title={"Add Gratitude"}>
+                <div className={"m-5"}>
+                    <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Your
+                        gratitude</label>
+                    <textarea id="message" rows={4}
+                              value={newGratitudeMessage}
+                              onChange={(event) => setNewGratitude(event.target.value)}
+                              className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                              placeholder="Write your gratitude here..."></textarea>
+                </div>
+                <div className={"flex items-center justify-end"}>
+                    <button type="button"
+                            onClick={() => addGratitude()}
+                            className="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add
+                    </button>
+                    <button type="button"
+                            className="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+                            onClick={() => setShowAddGratitudeModal(false)}>Cancel
+                    </button>
+
+                </div>
+            </Modal>
+
+        </main>
     );
 }

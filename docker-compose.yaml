@@ -1,0 +1,15 @@
+version: "3"
+services:
+  db:
+    image: postgres:16
+    shm_size: 128mb
+    container_name: spring-db
+    environment:
+      POSTGRES_PASSWORD: localrootpassword
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - ./database/db:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/0.sql
+    ports:
+      - "5432:5432"

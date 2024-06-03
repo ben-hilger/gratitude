@@ -24,7 +24,7 @@ export default function CalendarCell(props: CalendarCellProps) {
 
     return (
       <div onClick={selectDate}
-          className={`p-5 flex items-center justify-center border border-black 
+          className={`cursor-pointer py-5 m-0.5 rounded-xl flex items-center justify-center border border-black 
                         ${props.disabled ? "bg-gray-400" : ""}
                         ${props.selected ? "bg-blue-500" : ""}
                         `}>
