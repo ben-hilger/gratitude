@@ -29,7 +29,10 @@ export default function Home() {
     }, [])
 
     function setup() {
-       changeDate(new Date(2024, 0, 1, 0, 0, 0, 0))
+        const date = new Date();
+        date.setMonth(0)
+        date.setDate(1)
+        changeDate(date)
     }
 
     function changeDate(date: Date) {
