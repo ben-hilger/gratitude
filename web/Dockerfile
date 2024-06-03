@@ -1,11 +1,11 @@
 FROM node:alpine as BUILD_IMAGE
 WORKDIR /app
-COPY package.json yarn.lock ./
+COPY package.json ./
 # install dependencies
-RUN yarn install --frozen-lockfile
+RUN npm install --frozen-lockfile
 COPY . .
 # build
-RUN yarn build
+RUN npm run build
 # remove dev dependencies
 RUN npm prune --production
 FROM node:alpine
@@ -17,4 +17,4 @@ COPY --from=BUILD_IMAGE /app/.next ./.next
 COPY --from=BUILD_IMAGE /app/public ./public
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_API_BASE=https://api.bendev404.com
-CMD ["yarn", "start"]
+CMD ["npm","run", "start"]
