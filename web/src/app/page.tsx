@@ -87,8 +87,8 @@ export default function Home() {
 
     return (
         <CookiesProvider defaultSetOptions={{ path: '/' }}>
-            <main className="flex min-h-screen flex-col items-center gap-9 p-24">
-                <div className={"w-6/12"}>
+            <main className="flex min-h-screen flex-col items-center gap-9 pt-24">
+                <div className={"w-6/12 sm:w-full"}>
                     <Calendar onChange={changeDate} selectedDate={selectedDate ?? new Date()}></Calendar>
                 </div>
                 <div className={"w-full"}>

@@ -80,7 +80,7 @@ export default function Calendar(props: CalendarProps) {
                     <span className="sr-only">Arrow key right</span>
                 </kbd>
             </div>
-            <div className={"grid grid-cols-7"}>
+            <div className={"grid sm:grid-cols-5 grid-cols-7"}>
                 {buildCalendar()}
             </div>
         </div>
