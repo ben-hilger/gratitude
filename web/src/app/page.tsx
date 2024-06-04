@@ -8,6 +8,7 @@ import {redirect} from "next/navigation";
 import {GratitudeService, IGratitudeService} from "@/app/_lib/gratitude/service";
 import {SpringApi} from "@/app/_lib/api/api";
 import {Cookies, CookiesProvider} from "react-cookie";
+import Spinner from "@/components/spinner/spinner";
 
 export default function Home() {
 
@@ -18,6 +19,8 @@ export default function Home() {
 
     const [gratitudes, setGratitudes] = useState<Map<string, Gratitude[]>>(new Map<string, Gratitude[]>())
     const [newGratitudeMessage, setNewGratitude] = useState<string>("")
+
+    const [loading, setLoading] = useState<boolean>(false)
 
     useEffect(() => {
         const all = new Cookies();
@@ -45,6 +48,7 @@ export default function Home() {
     }
 
     function updateCalendar(month: number, year: number) {
+        setLoading(true)
         const updatedGratitudes = new Map<string, Gratitude[]>();
         gratitudeService.getGratitudes(month, year).then((grats) => {
             grats.forEach((gratitude) => {
@@ -58,6 +62,7 @@ export default function Home() {
                 currentGratitudes.set(key, value)
                 setGratitudes(currentGratitudes)
             })
+            setLoading(false)
         })
     }
 
@@ -85,40 +90,47 @@ export default function Home() {
         return gratitudes.get(key) ?? []
     }
 
+    function buildGratitudeTable() {
+       return (
+           <div className={"w-full"}>
+               <div className="relative overflow-x-auto">
+                   <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                       <thead
+                           className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                       <tr>
+                           <th scope="col" className="text-center px-6 py-3">
+                               Gratitude
+                               <button onClick={() => setShowAddGratitudeModal(true)}
+                                       className={"mx-5 px-3 py-2.5 rounded bg-blue-500 text-white"}>+</button>
+                           </th>
+                       </tr>
+                       </thead>
+                       <tbody>
+                       {getCurrentGratitudes().map((gratitude: Gratitude) => {
+                           return (<tr key={gratitude.id}
+                                       className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                               <th scope="row"
+                                   className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                   {gratitude.message}
+                               </th>
+                           </tr>)
+                       })}
+                       </tbody>
+                   </table>
+               </div>
+           </div>
+       )
+    }
+
     return (
-        <CookiesProvider defaultSetOptions={{ path: '/' }}>
+        <CookiesProvider defaultSetOptions={{path: '/'}}>
             <main className="flex min-h-screen flex-col items-center gap-9 pt-24">
                 <div className={"w-6/12 sm:w-full"}>
                     <Calendar onChange={changeDate} selectedDate={selectedDate ?? new Date()}></Calendar>
                 </div>
-                <div className={"w-full"}>
-                    <div className="relative overflow-x-auto">
-                        <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                            <thead
-                                className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                            <tr>
-                                <th scope="col" className="text-center px-6 py-3">
-                                    Gratitude
-                                    <button onClick={() => setShowAddGratitudeModal(true)}
-                                            className={"mx-5 px-3 py-2.5 rounded bg-blue-500 text-white"}>+</button>
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {getCurrentGratitudes().map((gratitude: Gratitude) => {
-                                return (<tr key={gratitude.id}
-                                            className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                    <th scope="row"
-                                        className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                                        {gratitude.message}
-                                    </th>
-                                </tr>)
-                            })}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+                {
+                    loading ? <><Spinner></Spinner></>: buildGratitudeTable()
+                }
 
                 <Modal show={showAddGratitudeModal} cancel={() => setShowAddGratitudeModal(false)} id={"add-gratitude"}
                        title={"Add Gratitude"}>
