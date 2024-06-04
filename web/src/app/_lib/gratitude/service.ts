@@ -26,7 +26,6 @@ export class GratitudeService implements IGratitudeService {
         } else if (response.status >= 400) {
             return 400
         } else if (response.status === 200) {
-            this.getGratitudes(gratitudeDate.getMonth(), gratitudeDate.getFullYear())
             return 200
         }
         throw new Error("Illegal state")

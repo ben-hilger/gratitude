@@ -39,23 +39,26 @@ export default function Home() {
         const month = date.getMonth()
         const year = date.getFullYear()
         if (month !== selectedDate?.getMonth()) {
-            const updatedGratitudes = new Map<string, Gratitude[]>();
-            gratitudeService.getGratitudes(month, year).then((grats) => {
-                grats.forEach((gratitude) => {
-                    const key = `${gratitude.date}-${gratitude.month}-${gratitude.year}`;
-                    const workingGratitudes = updatedGratitudes.get(key) ?? []
-                    workingGratitudes.push(gratitude);
-                    updatedGratitudes.set(key, workingGratitudes)
-                })
-                updatedGratitudes.forEach((value, key) => {
-                    const currentGratitudes = gratitudes
-                    currentGratitudes.set(key, value)
-                    setGratitudes(currentGratitudes)
-                })
-            })
-
+            updateCalendar(month, year)
         }
         setSelectedDate(date)
+    }
+
+    function updateCalendar(month: number, year: number) {
+        const updatedGratitudes = new Map<string, Gratitude[]>();
+        gratitudeService.getGratitudes(month, year).then((grats) => {
+            grats.forEach((gratitude) => {
+                const key = `${gratitude.date}-${gratitude.month}-${gratitude.year}`;
+                const workingGratitudes = updatedGratitudes.get(key) ?? []
+                workingGratitudes.push(gratitude);
+                updatedGratitudes.set(key, workingGratitudes)
+            })
+            updatedGratitudes.forEach((value, key) => {
+                const currentGratitudes = new Map<string, Gratitude[]>(gratitudes)
+                currentGratitudes.set(key, value)
+                setGratitudes(currentGratitudes)
+            })
+        })
     }
 
     async function addGratitude() {
@@ -66,6 +69,11 @@ export default function Home() {
         await gratitudeService.addGratitude(newGratitudeMessage, selectedDate)
         setNewGratitude("")
         setShowAddGratitudeModal(false)
+
+
+        const month = selectedDate.getMonth()
+        const year = selectedDate.getFullYear()
+        updateCalendar(month, year)
     }
 
     function getCurrentGratitudes() {
